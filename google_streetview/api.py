@@ -85,7 +85,14 @@ class StreetView:
     
     # (metadata) Create metadata api links and data from parameters
     self.metadata_links = [site_metadata + '?' + urlencode(p) for p in params]
-    self.metadata = [requests.get(url, stream=True).json() for url in self.metadata_links]
+    self._metadata = None
+
+
+  @property
+  def metadata(self):
+    if self._metadata is None:
+      self._metadata = [requests.get(url, stream=True).json() for url in self.metadata_links]
+    return self._metadata
       
   def download_links(self, dir_path, metadata_file='metadata.json', metadata_status='status', status_ok='OK', mode="w"):
     """Download Google Street View images from parameter queries if they are available.
