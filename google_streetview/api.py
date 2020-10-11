@@ -109,7 +109,7 @@ class StreetView:
         Value from the metadata API response status indicating that an image is available.
     """
     dir_path = Path(dir_path)
-    dir_path.makedirs(exist_ok=True)
+    dir_path.mkdir(exist_ok=True)
 
     max_index = max([0]+[re.findall(r"gsv\_(\d*).jpg",f.name)[0] for f in dir_path.iterdir()])
     
