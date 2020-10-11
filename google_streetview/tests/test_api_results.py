@@ -23,7 +23,7 @@ class apiTest(TestCase):
       'pitch': '-0.76',
       'key': defaults['key']
     }]
-    self.results = google_streetview.api.results(params)
+    self.results = google_streetview.api.StreetView(params)
     tempfile = TemporaryFile()
     self.tempfile = str(tempfile.name)
     tempfile.close()

@@ -157,7 +157,7 @@ def run(argv=argv):
   # (api_results) Get google api results
   site_api = siteargs['api'] if 'api' in siteargs else 'https://maps.googleapis.com/maps/api/streetview'
   site_metadata = siteargs['site_metadata'] if 'metadata' in siteargs else 'https://maps.googleapis.com/maps/api/streetview/metadata'
-  results = google_streetview.api.results(
+  results = google_streetview.api.StreetView(
     helpers.api_list(apiargs),
     site_api=site_api,
     site_metadata=site_metadata)
