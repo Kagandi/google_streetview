@@ -111,7 +111,7 @@ class StreetView:
     dir_path = Path(dir_path)
     dir_path.mkdir(exist_ok=True)
 
-    max_index = max([0]+[re.findall(r"gsv\_(\d*).jpg",f.name)[0] for f in dir_path.iterdir()])
+    max_index = max([0]+[re.findall(r"gsv\_(\d*).jpg",f.name)[0] for f in dir_path.glob("*.jpg")])
     
     if max_index:
       max_index = max_index + 1
