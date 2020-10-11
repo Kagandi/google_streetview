@@ -12,7 +12,7 @@ import re
 import json
 import requests
 
-class results:
+class StreetView:
   """Google Street View Image API results.
   
   Uses the `Google Street View Image API <https://developers.google.com/maps/documentation/streetview/>`_ 
