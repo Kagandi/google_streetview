@@ -184,7 +184,7 @@ class StreetView:
     if mode == "a" and file_path.exists():
       with file_path.open('r') as out_file:
         current_metadata = json.load(out_file)
-        metadata = current_metadata.append(metadata)
+        metadata = current_metadata += metadata
 
     with file_path.open('w+') as out_file:
       json.dump(metadata, out_file)
