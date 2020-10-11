@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from google_streetview import helpers
+from pathlib import Path
 from os import path, makedirs
 from pprint import pprint
 try:
   from urllib.parse import urlencode
 except ImportError:
   from urllib import urlencode
-
+import re
 import json
 import requests
 
@@ -86,7 +87,7 @@ class results:
     self.metadata_links = [site_metadata + '?' + urlencode(p) for p in params]
     self.metadata = [requests.get(url, stream=True).json() for url in self.metadata_links]
       
-  def download_links(self, dir_path, metadata_file='metadata.json', metadata_status='status', status_ok='OK'):
+  def download_links(self, dir_path, metadata_file='metadata.json', metadata_status='status', status_ok='OK', mode="w"):
     """Download Google Street View images from parameter queries if they are available.
     
     Args:
@@ -99,21 +100,26 @@ class results:
       status_ok (str):
         Value from the metadata API response status indicating that an image is available.
     """
-    metadata = self.metadata
-    if not path.isdir(dir_path):
-      makedirs(dir_path)
+    dir_path = Path(dir_path)
+    dir_path.makedirs(exist_ok=True)
+
+    max_index = max([0]+[re.findall(r"gsv\_(\d*).jpg",f.name)[0] for f in dir_path.iterdir()])
+    
+    if max_index:
+      max_index = max_index + 1
+
     
     # (download) Download images if status from metadata is ok
     for i, url in enumerate(self.links):
-      if metadata[i][metadata_status] == status_ok:
-        file_path = path.join(dir_path, 'gsv_' + str(i) + '.jpg')
-        metadata[i]['_file'] = path.basename(file_path) # add file reference
+      if self.metadata[i][metadata_status] == status_ok:
+        file_path = Path(dir_path) / f'gsv_{max_index + i}.jpg'
+        self.metadata[i]['_file'] = file_path.name # add file reference
         helpers.download(url, file_path)
     
     # (metadata) Save metadata with file reference
-    metadata_path = path.join(dir_path, metadata_file)
-    with open(metadata_path, 'w') as out_file:
-      json.dump(metadata, out_file)
+    metadata_path = dir_path / metadata_file
+    self.save_metadata(metadata_path, mode)
+
   
   def preview(self, n=10, k=['date', 'location', 'pano_id', 'status'], kheader='pano_id'):
     """Print a preview of the request results.
@@ -161,13 +167,22 @@ class results:
     with open(file_path, 'w+') as out_file:
       out_file.write(data)
   
-  def save_metadata(self, file_path):
+  def save_metadata(self, file_path, mode="w"):
     """Save Google Street View metadata from parameter queries.
     
     Args:
       file_path (str):
         Path of the file with extension to save the :class:`api.results`.metadata
     """
-    with open(file_path, 'w+') as out_file:
-      json.dump(self.metadata, out_file)
+    file_path = Path(file_path)
+    metadata = self.metadata
+    if mode == "a" and file_path.exists():
+      with file_path.open('r') as out_file:
+        current_metadata = json.load(out_file)
+        metadata = current_metadata.append(metadata)
+
+    with file_path.open('w+') as out_file:
+      json.dump(metadata, out_file)
+
+
       
