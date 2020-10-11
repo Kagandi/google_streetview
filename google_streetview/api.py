@@ -75,8 +75,9 @@ class results:
     defaults = {
       'size': '640x640'
     }
-  
-    self.params = dict(defaults, **params)
+    for i in range(len(params)):
+        params[i] = dict(defaults, **params[i])
+    self.params = params
     
     # (image) Create image api links from parameters
     self.links = [site_api + '?' + urlencode(p) for p in params]
