@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from itertools import product
-
+from functools import lru_cache
 import requests
 import shutil
 
@@ -77,3 +77,8 @@ def download(url, file_path):
     with open(file_path, 'wb') as f:
       r.raw.decode_content = True
       shutil.copyfileobj(r.raw, f)
+
+
+@lru_cache(128000)
+def get_url_json(url):
+  return requests.get(url, stream=True).json()

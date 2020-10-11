@@ -47,9 +47,8 @@ class StreetView:
         'size': '600x300', # max 640x640 pixels
         'location': '46.414382,10.013988',
         'heading': '151.78',
-        'pitch': '-0.76',
-        'key': 'your_dev_key'
-      }]
+        'pitch': '-0.76'
+       }]
       
       # Create a results object
       results = google_streetview.api.results(params)
@@ -69,12 +68,14 @@ class StreetView:
   def __init__(
     self,
     params,
+    api_key,
     site_api='https://maps.googleapis.com/maps/api/streetview',
     site_metadata='https://maps.googleapis.com/maps/api/streetview/metadata'):
     
     # (params) Set default params
     defaults = {
-      'size': '640x640'
+      'size': '640x640',
+      'key': api_key
     }
     for i in range(len(params)):
         params[i] = dict(defaults, **params[i])
