@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from tqdm import tqdm
 from google_streetview import helpers
 from pathlib import Path
 from os import path, makedirs
@@ -92,7 +92,7 @@ class StreetView:
   @property
   def metadata(self):
     if self._metadata is None:
-      self._metadata = [requests.get(url, stream=True).json() for url in self.metadata_links]
+      self._metadata = [requests.get(url, stream=True).json() for url in tqdm(self.metadata_links)]
     return self._metadata
       
   def download_links(self, dir_path, metadata_file='metadata.json', metadata_status='status', status_ok='OK', mode="w"):
@@ -115,7 +115,7 @@ class StreetView:
     
     
     # (download) Download images if status from metadata is ok
-    for i, url in enumerate(self.links):
+    for i, url in tqdm(enumerate(self.links), total=len(self.links)):
       if self.metadata[i][metadata_status] == status_ok:
         file_path = Path(dir_path) / f'gsv_{max_index + i}.jpg'
         self.metadata[i]['_file'] = file_path.name # add file reference
