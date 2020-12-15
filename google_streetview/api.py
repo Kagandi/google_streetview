@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from tqdm import tqdm
-from tqdm.asyncio import atqdm
+from tqdm.asyncio import tqdm as atqdm
 from google_streetview import helpers
 from pathlib import Path
 from os import path, makedirs
