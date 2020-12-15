@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from tqdm import tqdm
+from tqdm.asyncio import atqdm
 from google_streetview import helpers
 from pathlib import Path
 from os import path, makedirs
@@ -11,6 +12,9 @@ except ImportError:
 import re
 import json
 import requests
+import aiohttp
+import asyncio
+from aiohttp import ClientSession
 
 class StreetView:
   """Google Street View Image API results.
@@ -88,11 +92,40 @@ class StreetView:
     self.metadata_links = [site_metadata + '?' + urlencode(p) for p in params]
     self._metadata = None
 
+# async def get_book_details_async(isbn, session):
+#     """Get book details using Google Books API (asynchronously)"""
+#     url = GOOGLE_BOOKS_URL + isbn
+#     try:
+#         response = await session.request(method='GET', url=url)
+#         response.raise_for_status()
+#         print(f"Response status ({url}): {response.status}")
+#     except HTTPError as http_err:
+#         print(f"HTTP error occurred: {http_err}")
+#     except Exception as err:
+#         print(f"An error ocurred: {err}")
+#     response_json = await response.json()
+    # return response_json
+
+  async def get_street_url(self, url,session):
+    # requests.get(url, stream=True).json()
+    try:
+        response = await session.get(url=url, stream=True)
+        response.raise_for_status()
+        print(f"Response status ({url}): {response.status}")
+    except HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except Exception as err:
+        print(f"An error ocurred: {err}")
+    response_json = await response.json()
+    return response_json
+
 
   @property
-  def metadata(self):
+  async def metadata(self):
     if self._metadata is None:
-      self._metadata = [requests.get(url, stream=True).json() for url in tqdm(self.metadata_links)]
+      async with ClientSession() as session:
+        await asyncio.gather(*[get_street_url(url, session) for url in atqdm(self.metadata_links)])
+      # self._metadata = [requests.get(url, stream=True).json() for url in tqdm(self.metadata_links)]
     return self._metadata
       
   def download_links(self, dir_path, metadata_file='metadata.json', metadata_status='status', status_ok='OK', mode="w"):
