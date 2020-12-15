@@ -121,7 +121,7 @@ class StreetView:
 
 
   @property
-  async def metadata(self):
+  def metadata(self):
     if self._metadata is None:
       async with ClientSession() as session:
         await asyncio.gather(*[get_street_url(url, session) for url in atqdm(self.metadata_links)])
