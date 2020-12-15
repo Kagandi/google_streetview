@@ -112,7 +112,7 @@ class StreetView:
     # requests.get(url, stream=True).json()
     try:
         response = await session.get(url=url)
-        response.raise_for_status()
+        # response.raise_for_status()
         # print(f"Response status ({url}): {response.status}")
     except HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
@@ -125,11 +125,12 @@ class StreetView:
       async with ClientSession() as session:
         temp = []
         # temp = await asyncio.gather(*[self.get_street_url(url, session) for url in atqdm.as_completed(self.metadata_links)])
-        # temp = [await self.get_street_url(url, session) for url in async_tqdm.as_completed(self.metadata_links)]
-        for url in async_tqdm.as_completed(self.metadata_links):
-          await url
-          meta = await self.get_street_url(url, session)
-          temp.append(meta)
+        temp = [self.get_street_url(url, session) for url in self.metadata_links]
+        temp = [await meta for meta in async_tqdm.as_completed(temp)]
+        # for url in async_tqdm.as_completed(self.metadata_links):
+        #   await url
+        #   meta = await self.get_street_url(url, session)
+        #   temp.append(meta)
         self._metadata = temp
 
   @property
