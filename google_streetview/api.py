@@ -123,8 +123,13 @@ class StreetView:
 
   async def fetch_metadata(self):
       async with ClientSession() as session:
+        temp = []
         # temp = await asyncio.gather(*[self.get_street_url(url, session) for url in atqdm.as_completed(self.metadata_links)])
-        temp = [await self.get_street_url(url, session) for url in async_tqdm.as_completed(self.metadata_links)]
+        # temp = [await self.get_street_url(url, session) for url in async_tqdm.as_completed(self.metadata_links)]
+        for url in async_tqdm.as_completed(self.metadata_links):
+          await url
+          meta = await self.get_street_url(url, session)
+          temp.append(meta)
         self._metadata = temp
 
   @property
