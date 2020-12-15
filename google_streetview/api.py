@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from tqdm import tqdm
-from tqdm.asyncio import tqdm as atqdm
+from tqdm.asyncio import tqdm as async_tqdm
 from google_streetview import helpers
 from pathlib import Path
 from os import path, makedirs
@@ -113,7 +113,7 @@ class StreetView:
     try:
         response = await session.get(url=url)
         response.raise_for_status()
-        print(f"Response status ({url}): {response.status}")
+        # print(f"Response status ({url}): {response.status}")
     except HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
     except Exception as err:
@@ -123,7 +123,9 @@ class StreetView:
 
   async def fetch_metadata(self):
       async with ClientSession() as session:
-        self._metadata = await asyncio.gather(*[self.get_street_url(url, session) for url in atqdm(self.metadata_links)])
+        # temp = await asyncio.gather(*[self.get_street_url(url, session) for url in atqdm.as_completed(self.metadata_links)])
+        temp = [await self.get_street_url(url, session) for url in async_tqdm.as_completed(self.metadata_links)]
+        self._metadata = temp
 
   @property
   def metadata(self):
