@@ -111,7 +111,7 @@ class StreetView:
   async def get_street_url(self, url,session):
     # requests.get(url, stream=True).json()
     try:
-        response = await session.get(url=url, stream=True)
+        response = await session.get(url=url)
         response.raise_for_status()
         print(f"Response status ({url}): {response.status}")
     except HTTPError as http_err:
