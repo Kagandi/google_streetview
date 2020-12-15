@@ -10,6 +10,8 @@ try:
 except ImportError:
   from urllib import urlencode
 import re
+from requests.exceptions import HTTPError
+
 import json
 import requests
 import aiohttp
