@@ -119,13 +119,17 @@ class StreetView:
     response_json = await response.json()
     return response_json
 
+  async def fetch_metadata(self):
+      async with ClientSession() as session:
+        self._metadata = await asyncio.gather(*[self.get_street_url(url, session) for url in atqdm(self.metadata_links)])
 
   @property
   def metadata(self):
     if self._metadata is None:
-      async with ClientSession() as session:
-        await asyncio.gather(*[get_street_url(url, session) for url in atqdm(self.metadata_links)])
       # self._metadata = [requests.get(url, stream=True).json() for url in tqdm(self.metadata_links)]
+      loop = asyncio.get_event_loop()
+      loop.run_until_complete(self.fetch_metadata())
+      loop.close()
     return self._metadata
       
   def download_links(self, dir_path, metadata_file='metadata.json', metadata_status='status', status_ok='OK', mode="w"):
