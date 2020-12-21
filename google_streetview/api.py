@@ -76,7 +76,8 @@ class StreetView:
     params,
     api_key,
     site_api='https://maps.googleapis.com/maps/api/streetview',
-    site_metadata='https://maps.googleapis.com/maps/api/streetview/metadata'):
+    site_metadata='https://maps.googleapis.com/maps/api/streetview/metadata',
+    max_tcp=50):
     
     # (params) Set default params
     defaults = {
@@ -93,6 +94,8 @@ class StreetView:
     # (metadata) Create metadata api links and data from parameters
     self.metadata_links = [site_metadata + '?' + urlencode(p) for p in params]
     self._metadata = None
+    self.conn = aiohttp.TCPConnector(limit=max_tcp)
+
 
 # async def get_book_details_async(isbn, session):
 #     """Get book details using Google Books API (asynchronously)"""
@@ -122,15 +125,11 @@ class StreetView:
     return response_json
 
   async def fetch_metadata(self):
-      async with ClientSession() as session:
+      async with ClientSession(connector=self.conn) as session:
         temp = []
         # temp = await asyncio.gather(*[self.get_street_url(url, session) for url in atqdm.as_completed(self.metadata_links)])
         temp = [self.get_street_url(url, session) for url in self.metadata_links]
         temp = [await meta for meta in async_tqdm.as_completed(temp)]
-        # for url in async_tqdm.as_completed(self.metadata_links):
-        #   await url
-        #   meta = await self.get_street_url(url, session)
-        #   temp.append(meta)
         self._metadata = temp
 
   @property
@@ -139,7 +138,6 @@ class StreetView:
       # self._metadata = [requests.get(url, stream=True).json() for url in tqdm(self.metadata_links)]
       loop = asyncio.get_event_loop()
       loop.run_until_complete(self.fetch_metadata())
-      loop.close()
     return self._metadata
       
   def download_links(self, dir_path, metadata_file='metadata.json', metadata_status='status', status_ok='OK', mode="w"):
@@ -164,6 +162,8 @@ class StreetView:
     # (download) Download images if status from metadata is ok
     for i, url in tqdm(enumerate(self.links), total=len(self.links)):
       if self.metadata[i][metadata_status] == status_ok:
+        self.metadata[i]['heading'] =  self.params[i]["heading"]
+        # add file reference
         file_path = Path(dir_path) / f'gsv_{max_index + i}.jpg'
         self.metadata[i]['_file'] = file_path.name # add file reference
         helpers.download(url, file_path)
