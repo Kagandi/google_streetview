@@ -140,7 +140,7 @@ class StreetView:
       loop.run_until_complete(self.fetch_metadata())
     return self._metadata
       
-  def download_links(self, dir_path, metadata_file='metadata.json', metadata_status='status', status_ok='OK', mode="w"):
+  def download_links(self, dir_path, metadata_file='metadata.json', metadata_status='status', status_ok='OK', mode="a"):
     """Download Google Street View images from parameter queries if they are available.
     
     Args:
@@ -162,7 +162,8 @@ class StreetView:
     # (download) Download images if status from metadata is ok
     for i, url in tqdm(enumerate(self.links), total=len(self.links)):
       if self.metadata[i][metadata_status] == status_ok:
-        self.metadata[i]['heading'] =  self.params[i]["heading"]
+        if "heading" in self.params[i]:
+          self.metadata[i]['heading'] =  self.params[i]["heading"]
         # add file reference
         file_path = Path(dir_path) / f'gsv_{max_index + i}.jpg'
         self.metadata[i]['_file'] = file_path.name # add file reference
